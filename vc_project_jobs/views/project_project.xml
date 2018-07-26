@@ -1,0 +1,391 @@
+<odoo>
+  <data>
+
+        <!-- Rename App -->
+        <menuitem name = "Projects"
+            id = "project.menu_main_pm" />
+
+        <menuitem name = "Jobs"
+            id = "menu_main_jobs"
+            groups = "project.group_project_manager,project.group_project_user"
+            web_icon = "vc_project_jobs,static/description/spanner.png"
+            sequence = "51"/>
+
+        <menuitem name = "Search"
+            id = "menu_job_management"
+            parent = "menu_main_jobs"
+            sequence = "2" groups = "base.group_no_one,project.group_project_user"/>
+
+        <menuitem id = "menu_job_configuration" name = "Configuration" parent = "menu_main_jobs"
+            sequence = "100" groups = "project.group_project_manager"/>
+
+
+       <record id="view_project_tree" model="ir.ui.view">
+            <field name="name">project.project.tree.jobs</field>
+            <field name="model">project.job</field>
+            <field name="arch" type="xml">
+                <tree decoration-muted="active == False" string="Jobs">
+                    <field name="sequence" widget="handle"/>
+                    <field name="active" invisible="1"/>
+                    <field name="date_from" />
+                    <field name="date_to" />
+                    <field name="name" string="Name"/>
+                    <field name="user_id" string="Project Manager"/>
+                    <field name="partner_id" string="Customer"/>
+                    <field name="site_id"/>
+                    <field name="progress"/>
+                </tree>
+            </field>
+        </record>
+
+       <record id = "act_project_project_2_job_daily_report_all" model = "ir.actions.act_window">
+            <field name = "name">Daily Report</field>
+            <field name = "res_model">job.daily.report</field>
+            <field name = "view_mode">tree,form</field>
+            <field name = "view_id" ref="view_job_daily_report_tree_create"/>
+            <field name = "context">{
+                'default_job_id': active_id,
+            }</field>
+            <field name = "help" type = "html">
+                <p class = "oe_view_nocontent">
+                    Here, you can view all the Daily Reports
+                </p>
+            </field>
+        </record>
+
+        <record id = "open_daily_report" model = "ir.actions.act_window">
+            <field name = "name">Daily Report</field>
+            <field name = "res_model">job.daily.report</field>
+            <field name = "view_mode">tree,form</field>
+            <field name = "context">{
+            }</field>
+            <field name = "help" type = "html">
+                <p class = "oe_view_nocontent">
+                    Here, you can view all the Daily Reports - to create one, open a Job and click the Daily Reports smart button.
+                </p>
+            </field>
+        </record>
+
+        <record id = "open_view_job_all" model = "ir.actions.act_window">
+            <field name = "name">Jobs</field>
+            <field name = "res_model">project.job</field>
+            <field name = "view_type">form</field>
+            <field name = "view_mode">kanban,tree,form,calendar</field>
+            <field name = "help" type = "html">
+                <p class = "oe_view_nocontent_create">
+                    Create a new Job.
+                </p><p>
+                    Organize your activities (plan tasks, track issues, invoice timesheets) for Jobs.
+                </p>
+            </field>
+        </record>
+
+        <record id = "open_view_sites_all" model = "ir.actions.act_window">
+            <field name = "name">Sites</field>
+            <field name = "res_model">res.partner</field>
+            <field name = "view_type">form</field>
+            <field name = "domain">[('type','=','job')]</field>
+            <field name = "view_mode">tree</field>
+            <field name = "context">{'default_type': 'job', 'default_company_type': 'person',}</field>
+            <field name = "help" type = "html">
+                <p class = "oe_view_nocontent_create">
+                    Create a new Site
+                </p><p>
+                    Sites are the places you visit on a Job.
+                </p>
+            </field>
+        </record>
+
+        <menuitem action = "open_view_job_all" id = "menu_jobs" name = "Jobs" parent = "menu_main_jobs" sequence = "10"/>
+        <menuitem action = "open_daily_report" id = "menu_reports" name = "Daily Reports" parent = "menu_main_jobs" 
+                  sequence = "15"/>
+
+        <menuitem action = "open_view_sites_all" id = "menu_sites" name = "Sites" parent = "menu_main_jobs" sequence = "15"/>
+
+        <record id = "act_project_project_2_project_jobs_all" model = "ir.actions.act_window">
+            <field name = "name">Jobs</field>
+            <field name = "res_model">project.job</field>
+            <field name = "view_mode">kanban,tree,form,calendar</field>
+            <field name = "context">{
+                'search_default_project_id': [active_id],
+                'default_project_id': active_id,
+            }</field>
+            <field name = "help" type = "html">
+                <p class = "oe_view_nocontent_create">
+                    Here, you can create new Jobs
+                </p>
+                <p>
+                    You can now manage your Jobs in order to get things done efficiently. Plan, track progress, discuss, attach documents, etc.
+                </p>
+            </field>
+        </record>
+
+        <record id = "view_project_kanban_inherited" model = "ir.ui.view">
+            <field name = "name">project.project.kanban.inherited</field>
+            <field name = "model">project.project</field>
+            <field name = "inherit_id" ref = "project.view_project_kanban"/>
+            <field name = "priority">16</field>
+            <field name = "arch" type = "xml">
+<data>
+
+  <field name="name" position="after">
+    <field name="supports_jobs"/>
+    <field name="job_count"/> 
+  </field>
+
+<a class="o_project_kanban_box" position="after">
+  <a class="o_project_kanban_box" name="%(act_project_project_2_project_jobs_all)d" 
+     type="action" attrs="{'invisible': [('supports_jobs', '!=', True)]}"
+     context="{'default_parent_project_id': active_id}">
+    <div>
+      <span class="o_value"><t t-esc="record.job_count.value"/></span>
+      <span class="o_label">Jobs</span>
+    </div>
+  </a>
+</a>
+
+</data>
+            </field>
+        </record>
+
+    <record id = "view_project_project_form" model = "ir.ui.view">
+        <field name = "name">project.project.form.jobs</field>
+        <field name = "model">project.project</field>
+        <field name = "inherit_id" eval="ref('project.edit_project')"></field>
+        <field name = "priority">23</field>
+        <field name = "arch" type = "xml">
+            <data>
+            <page position="inside">
+                <group string="Jobs">
+                   <field name = "supports_jobs"/>
+                </group>
+            </page>
+
+            <button name = "attachment_tree_view" position = "after">
+              <button class = "oe_stat_button" name = "%(act_project_project_2_project_jobs_all)d"
+                       type = "action" icon = "fa-wrench"
+                       attrs = "{'invisible': [('supports_jobs', '!=', True)]}"
+                       context = "{'default_partner_id': partner_id, 'default_project_id': active_id}">
+                       <field name="job_count" widget="statinfo" string="Jobs"/>
+              </button>
+            </button>
+
+
+            </data>
+        </field>
+    </record>
+
+    <record id = "view_project_job_search" model = "ir.ui.view">
+      <field name="name">Project Job Search</field>
+      <field name = "model">project.job</field>
+      <field name = "type">search</field>
+      <field name = "arch" type = "xml">
+        <search>
+           <field name="name"/>
+           <field name="type"/>
+           <field name="user_id"/>
+           <field name="foreman_id"/>
+           <field name="project_id" filter_domain="[('project_id','=',self)]" string="Project"/>
+        </search>
+      </field>
+    </record>
+
+
+    <record id = "view_project_job_calendar" model = "ir.ui.view">
+      <field name="name">Project Job Calendar</field>
+      <field name = "model">project.job</field>
+      <field name = "type">calendar</field>
+      <field name = "arch" type = "xml">
+<calendar date_start="date_from" date_stop="date_to" string="Jobs" color="priority">
+                <field name="name"/>
+            </calendar>
+      </field>
+    </record>
+
+    <record id = "view_project_job_kanban" model = "ir.ui.view">
+      <field name="name">Project Job Kanban</field>
+      <field name = "model">project.job</field>
+      <field name = "type">kanban</field>
+      <field name = "arch" type = "xml">
+<kanban default_group_by="stage_id" >
+
+                    <field name="priority"/>
+                    <field name="color"/>
+                    <field name="stage_id" options="{&quot;group_by_tooltip&quot;: {&quot;description&quot;: &quot;Stage Description&quot;, &quot;legend_priority&quot;: &quot;Use of stars&quot;}}"/>
+                    
+                    <field name="user_id"/>
+                    <field name="site_id"/>
+                    <field name="kanban_state"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="type"/>
+                    <templates>
+                   <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title"><field name="name"/></strong><t t-if="record.type.raw_value">&#160;(<field name="type"/>)</t><br/>
+                                        <small class="o_kanban_record_subtitle text-muted">
+                                            <strong><field name="project_id" /></strong>
+                                            <br/>
+                                            <t t-if="record.date_from.raw_value"><br/>Start:&#160;<field name="date_from"/></t> 
+                                            <t t-if="record.date_to.raw_value"><br/>Finish:&#160;<field name="date_to"/></t>
+                                            <t t-if="record.site_id.raw_value"><br/>Site:&#160;<field name="site_id"/></t>
+                                        </small>
+                                    </div>
+                                    <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                        <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                            <span class="fa fa-ellipsis-v" aria-hidden="true"/>
+                                        </a>
+                                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                            <li t-if="widget.editable"><a type="set_cover">Set Cover Image</a></li>
+                                            <li t-if="widget.editable"><a type="edit">Edit Task</a></li>
+                                            <li t-if="widget.deletable"><a type="delete">Delete</a></li>
+                                            <li class="divider"/>
+                                            <li class="dropdown-header">Record's Colour</li>
+                                            <li>
+                                                <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="priority" widget="priority"/>
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                        <!--
+                                        <t t-if="record.message_needaction_counter.raw_value">
+                                            <span class="oe_kanban_mail_new" title="Unread Messages"><i class="fa fa-comments"/><t t-raw="record.message_needaction_counter.raw_value"/></span>
+                                        </t>
+                                        -->
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="kanban_state" widget="state_selection" groups="base.group_user"/>
+                                        <img t-att-src="kanban_image('res.users', 'image_small', record.user_id.raw_value)" t-att-title="record.user_id.value" width="24" height="24" class="oe_kanban_avatar"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="oe_clear"/>
+                        </div>
+                    </t>
+                    </templates>
+</kanban>
+      
+      
+      </field>
+    </record>
+
+
+    <record id = "view_project_job_form" model = "ir.ui.view">
+      <field name="name">Project Job Form</field>
+      <field name = "model">project.job</field>
+      <field name = "arch" type = "xml">
+
+<form string="Jobs">
+  <header>
+
+  </header>
+  <sheet>
+    <div class="oe_button_box" name="button_box">
+      <button class = "oe_stat_button" style="width:150px;" name = "%(act_project_project_2_job_daily_report_all)d"
+                       type = "action" icon = "fa-clipboard"
+                       attrs="{'invisible': [('site_id','=',False)]}"
+                       context = "{'default_site_id': site_id, 'default_foreman_id': foreman_id, 
+                       'default_project_manager_id': user_id, 'default_crew_id': crew_id, 
+                       'default_crew_employees': crew_employees }">
+        <field name="daily_report_count" widget="statinfo" string="Daily Reports"/>
+      </button>
+      <button name="toggle_active" type="object" groups="base.group_user" class="oe_stat_button" icon="fa-archive">
+        <field name="active" widget="boolean_button" options="{&quot;terminology&quot;: &quot;archive&quot;}"/>
+      </button>
+    </div>
+    <field name="kanban_state" widget="state_selection"/>
+    <div class="oe_title">
+      <h1 class="o_row">
+        <field name="priority" widget="priority"/>
+        <field name="name" placeholder="Job Name..."/>
+      </h1>
+    </div> 
+    <div name="type">
+      <group>
+        <group>
+          <field name="project_id" string="Job Project" domain="[('supports_jobs','=',True)]"/>
+          <field name="partner_id" />
+          <field name="type"/>
+        </group>
+        <group/>
+      </group>
+      <group>
+          <group>
+            <field name="date_from"/>
+            <field name="date_to"/>
+          </group>
+      </group>
+      <group>
+        <group>
+          <field name="user_id" class="o_task_user_field" options="{&quot;no_open&quot;: True}"/>
+          <field name="crew_id"/>
+          <field name="site_id"
+                              domain = "[('type','=','job'),'|',('id','=',partner_id),('parent_id','=',partner_id)]"
+                              context = "{'default_parent_id': partner_id,'default_type': 'job', 'show_address': 1}"
+                              options = "{&quot;always_reload&quot;: True}"/>
+        </group>
+        <group>
+          <field name="foreman_id"/>
+          <field name="crew_employees" widget="many2many_tags"/>
+        </group>
+      </group>
+    </div>
+
+<notebook>
+<page string="Instructions">
+<field name="job_instructions"/>
+</page>
+<page string="Timesheets" attrs="{'invisible': [('project_id', '=', False)]}">
+                        <group>
+                            <group>
+                                <field name="planned_hours" widget="float_time"/>
+                            </group>
+                            <group>
+                                <field name="progress" widget="progressbar"/>
+                            </group>
+                        </group>
+                    <field name="timesheet_ids" context="{'default_job_id': active_id, 'default_project_id': project_id}">
+                        <tree editable="bottom" string="Timesheet Activities" default_order="date">
+                            <field name="date"/>
+                            <field name="user_id" invisible="1"/>
+                            <field name="employee_id" required="1"/>
+                            <field name="name"/>
+                            <field name="unit_amount" string="Duration" widget="float_time"/>
+                            <field name="project_id" invisible="1"/>
+                            <field name="job_id" invisible="1"/>
+                        </tree>
+                    </field>
+                    <group>
+                     <group class="oe_subtotal_footer oe_right" name="project_hours">
+                        <field name="effective_hours" widget="float_time" />
+                        <field name="total_hours_spent" widget="float_time" class="oe_subtotal_footer_separator" />
+                        <field name="remaining_hours" widget="float_time" class="oe_subtotal_footer_separator" readonly="1"/>
+                     </group>
+                    </group>
+                </page>
+
+</notebook>
+
+  </sheet>
+  <div class="oe_chatter">
+    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+    <field name="activity_ids" widget="mail_activity"/>
+    <field name="message_ids" widget="mail_thread"/>
+  </div>
+
+</form>
+
+      </field>
+    </record>
+
+  </data>
+</odoo>

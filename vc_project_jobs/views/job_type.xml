@@ -1,0 +1,26 @@
+<odoo>
+<data>
+
+        <record id = "view_job_type" model = "ir.ui.view">
+            <field name = "name">job.type.tree</field>
+            <field name = "model">job.type</field>
+            <field name = "arch" type = "xml">
+                <tree string = "Job Types" editable = "top">
+                    <field name = "name" />
+                </tree>
+            </field>
+        </record>
+
+        <record id = "action_job_type" model = "ir.actions.act_window">
+            <field name = "name">Job Types</field>
+            <field name = "res_model">job.type</field>
+            <field name = "view_type">form</field>
+            <field name = "view_mode">tree</field>
+        </record>
+
+
+        <menuitem action = "action_job_type" id = "menu_job__type" name = "Job Types" 
+                  parent = "menu_job_configuration" sequence = "36"/>
+
+</data>
+</odoo>
